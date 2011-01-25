@@ -1,15 +1,5 @@
 import random
-
-def triangularize(collection):
-    result = []
-    i = 0
-    for item in collection:
-        if i % 3 == 0:
-            result.append([item])
-        else:
-            result[-1].append(item)
-        i += 1
-    return result
+from helpers import *
 
 class SequentialAnnealing(object):
     "Sequential Annealing for Delivery Problem algorithm"
@@ -26,8 +16,21 @@ class SequentialAnnealing(object):
         solution = triangularize(tmp_clients)
         return solution
 
+    def squared_length(self):
+        if self._squared_length:
+            return self._squared_length
+        else:
+            self._squared_length = len(self.clients)**2
+            return _squared_length
+
     def solve(self):
-        best_solution = self.random_solution()
+        old_solution = self.random_solution()
+        best_solution = list(old_solution)
+        equilibrium_counter = 0
+        temp = cost(best_solution)
+        while equilibrium_counter <= 20:
+            for i in xrange(_squared_length):
+                best_solution, old_solution, equilibrium_counter = annealing_step(old_solution, best_solution, equilibrium_counter)
         return best_solution
 
 
