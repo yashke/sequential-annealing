@@ -1,5 +1,24 @@
 import random
+from itertools import *
 from helpers import *
+
+def flatten(l):
+    return [x for x in chain.from_iterable(l)]
+
+def uniq(l):
+    return [x for x in unique_everseen(l)]
+
+def unique_everseen(iterable):
+    "List unique elements, preserving order. Remember all elements ever seen."
+    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
+    # unique_everseen('ABBCcAD', str.lower) --> A B C D
+    seen = []
+    for element in iterable:
+        if not element in seen:
+            seen.append(element)
+            yield element
+        else:
+            print element
 
 class SequentialAnnealing(object):
     "Sequential Annealing for Delivery Problem algorithm"
@@ -33,7 +52,7 @@ class SequentialAnnealing(object):
         temp = cost(best_solution, self.base)
         while equilibrium_counter <= 20:
             for i in xrange(self.squared_length()):
-                best_solution, old_solution, equilibrium_counter, temp = self.annealing_step(old_solution, best_solution, equilibrium_counter, temp)
+                old_solution, best_solution, equilibrium_counter, temp = self.annealing_step(old_solution, best_solution, equilibrium_counter, temp)
             temp = temp * self.ALPHA
             equilibrium_counter += 1
         return best_solution
@@ -41,10 +60,10 @@ class SequentialAnnealing(object):
     def annealing_step(self, old_solution, best_solution, equilibrium_counter, temp):
         customer = random.choice(self.clients)
         customer_route = filter(lambda x: customer in x, old_solution)[0]
-        routes_without_customer = map(lambda x: list(x), filter(lambda x: not customer in x, list(old_solution)))
+        routes_without_customer = map(lambda x: list(x), filter(lambda x: x != customer_route, list(old_solution)))
+
         for_select = list(routes_without_customer)
         for_select.append([])
-
         route = random.choice(for_select)
 
         new_solution = None
@@ -57,8 +76,8 @@ class SequentialAnnealing(object):
             new_solution = filter(lambda x: route != x, routes_without_customer)
             customer2 = random.choice(route)
             route1 = filter(lambda x: customer != x, customer_route)
-            route1.append(customer2)
             route2 = filter(lambda x: customer2 != x, route)
+            route1.append(customer2)
             route2.append(customer)
             new_solution.append(route1)
             new_solution.append(route2)
@@ -69,9 +88,9 @@ class SequentialAnnealing(object):
         delta = cost(new_solution, self.base) - cost(old_solution, self.base)
 
         if delta < 0 or x < temp / (temp + delta):
-            old_solution = new_solution
+            old_solution = list(new_solution)
             if cost(new_solution, self.base) < cost(best_solution, self.base):
-                best_solution = new_solution
+                best_solution = list(new_solution)
                 equilibrium_counter = 0
 
         return old_solution, best_solution, equilibrium_counter, temp
